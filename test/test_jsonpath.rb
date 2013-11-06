@@ -1,3 +1,4 @@
+
 class TestJsonpath < MiniTest::Unit::TestCase
 
   def setup
@@ -50,6 +51,17 @@ class TestJsonpath < MiniTest::Unit::TestCase
     assert_equal [@object['store']['book'][0], @object['store']['book'][2]], JsonPath.new("$..book[?(@['price'] < 10)]").on(@object)
     assert_equal [@object['store']['book'][0], @object['store']['book'][2]], JsonPath.new("$..book[?(@['price'] == 9)]").on(@object)
     assert_equal [@object['store']['book'][3]], JsonPath.new("$..book[?(@['price'] > 20)]").on(@object)
+  end
+
+  def test_filter_plus_query
+    assert_equal [@object['store']['book'][2]['title'], @object['store']['book'][3]['title']], JsonPath.new("$..book[?(@['isbn'])].title").on(@object)
+    assert_equal [@object['store']['book'][0]['title'], @object['store']['book'][2]['title']], JsonPath.new("$..book[?(@['price'] < 10)].title").on(@object)
+    assert_equal [@object['store']['book'][0]['title'], @object['store']['book'][2]['title']], JsonPath.new("$..book[?(@['price'] == 9)].title").on(@object)
+    assert_equal [@object['store']['book'][3]['title']], JsonPath.new("$..book[?(@['price'] > 20)].title").on(@object)
+  end
+
+  def test_filter_hash
+    assert_equal [@object['store']['bicycle']['color']], JsonPath.new("$..bicycle[?(@['price'] == 20)].color").on(@object)
   end
 
   if RUBY_VERSION[/^1\.9/]

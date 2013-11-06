@@ -31,13 +31,14 @@ class JsonPath
           when ??
             raise "Cannot use ?(...) unless eval is enabled" unless allow_eval?
             case node
-            when Hash, Array
-              (node.is_a?(Hash) ? node.keys : (0..node.size)).each do |e|
-                each(node, e, pos + 1) { |n|
-                  @_current_node = n
-                  yield n if process_function_or_literal(sub_path[1, sub_path.size - 1])
-                }
+            when Array
+              node.each_with_index do |e,index|
+                @_current_node = e
+                each(node, index, pos + 1, &blk) if process_function_or_literal(sub_path[1, sub_path.size - 1])
               end
+              @_current_node = node
+            when Hash
+              each(context, key, pos + 1, &blk) if process_function_or_literal(sub_path[1, sub_path.size - 1])
             else
               yield node if process_function_or_literal(sub_path[1, sub_path.size - 1])
             end
